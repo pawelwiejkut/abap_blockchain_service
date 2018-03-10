@@ -9,6 +9,6 @@ public class GreeterContractIT {
 
     @Test
     public void testGreeterContract() throws Exception {
-        Application.main(new String[]{});
+        Etherium.main(new String[]{});
     }
 }

@@ -5,48 +5,28 @@ import org.slf4j.LoggerFactory;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
+import org.web3j.tx.Transfer;
+import org.web3j.utils.Convert;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
+import java.math.BigDecimal;
 
-/**
- * A simple web3j application that demonstrates a number of core features of web3j:
- * <p>
- * <ol>
- * <li>Connecting to a node on the Ethereum network</li>
- * <li>Loading an Ethereum wallet file</li>
- * <li>Sending Ether from one address to another</li>
- * <li>Deploying a smart contract to the network</li>
- * <li>Reading a value from the deployed smart contract</li>
- * <li>Updating a value in the deployed smart contract</li>
- * <li>Viewing an event logged by the smart contract</li>
- * </ol>
- * <p>
- * <p>To run this demo, you will need to provide:
- * <p>
- * <ol>
- * <li>Ethereum client (or node) endpoint. The simplest thing to do is
- * <a href="https://infura.io/register.html">request a free access token from Infura</a></li>
- * <li>A wallet file. This can be generated using the web3j
- * <a href="https://docs.web3j.io/command_line.html">command line tools</a></li>
- * <li>Some Ether. This can be requested from the
- * <a href="https://www.rinkeby.io/#faucet">Rinkeby Faucet</a></li>
- * </ol>
- * <p>
- * <p>For further background information, refer to the project README.
- */
+
 @WebService()
-public class Application {
+public class Etherium {
 
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
-
+    private static final Logger log = LoggerFactory.getLogger(Etherium.class);
+    private Credentials credentials;
+    private Web3j web3j;
 
     public static void main(String[] args) throws Exception {
-        Object implementor = new Application();
-        String address = "http://localhost:9000/WsEth";
+        Object implementor = new Etherium();
+        String address = "http://localhost:18127/WsEth";
         Endpoint.publish(address, implementor);
     }
 
@@ -56,32 +36,36 @@ public class Application {
 
         // We start by creating a new web3j instance to connect to remote nodes on the network.
         // Note: if using web3j Android, use Web3jFactory.build(...
-        Web3j web3j = Web3j.build(new HttpService(
+        web3j = Web3j.build(new HttpService(
                 "https://rinkeby.infura.io/" + token));  // FIXME: Enter your Infura token here;
         log.info("Connected to Ethereum client version: "
                 + web3j.web3ClientVersion().send().getWeb3ClientVersion());
 
         // We then need to load our Ethereum wallet file
         // FIXME: Generate a new wallet file using the web3j command line tools https://docs.web3j.io/command_line.html
-        Credentials credentials =
-                WalletUtils.loadCredentials(
-                        password,
-                        walletPath);
+
+        credentials = WalletUtils.loadCredentials(
+                password,
+                walletPath);
+
         return "Credentials loaded";
     }
-}
 
-//        // FIXME: Request some Ether for the Rinkeby test network at https://www.rinkeby.io/#faucet
-//        log.info("Sending 1 Wei ("
-//                + Convert.fromWei("1", Convert.Unit.ETHER).toPlainString() + " Ether)");
-//        TransactionReceipt transferReceipt = Transfer.sendFunds(
-//                web3j, credentials,
-//                "0x19e03255f667bdfd50a32722df860b1eeaf4d635",  // you can put any address here
-//                BigDecimal.ONE, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
-//                .send();
-//        log.info("Transaction complete, view it at https://rinkeby.etherscan.io/tx/"
-//                + transferReceipt.getTransactionHash());
-//
+
+    @WebMethod
+    public String sendMoney(@WebParam(name = "ethAddress") String ehtAddress) throws Exception {
+
+        TransactionReceipt transferReceipt = Transfer.sendFunds(
+                web3j, credentials,
+                ehtAddress,
+                // you can put any address here
+                BigDecimal.TEN, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
+                .send();
+        return "Transaction complete, view it at https://rinkeby.etherscan.io/tx/"
+                + transferReceipt.getTransactionHash();
+
+    }
+}
 //        // Now lets deploy a smart contract
 //        log.info("Deploying smart contract");
 //        Greeter contract = Greeter.deploy(
