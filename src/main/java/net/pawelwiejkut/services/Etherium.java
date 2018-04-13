@@ -53,18 +53,21 @@ public class Etherium {
 
 
     @WebMethod
-    public String sendMoney(@WebParam(name = "ethAddress") String ehtAddress) throws Exception {
+    public String sendMoney(@WebParam(name = "ethAddress") String ethAddress) throws Exception {
 
         TransactionReceipt transferReceipt = Transfer.sendFunds(
                 web3j, credentials,
-                ehtAddress,
-                // you can put any address here
-                BigDecimal.TEN, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
+                ethAddress,  // you can put any address here
+                BigDecimal.ONE, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
                 .send();
         return "Transaction complete, view it at https://rinkeby.etherscan.io/tx/"
                 + transferReceipt.getTransactionHash();
 
     }
+
+
+
+
 }
 //        // Now lets deploy a smart contract
 //        log.info("Deploying smart contract");
